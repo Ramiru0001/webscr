@@ -1,10 +1,16 @@
+import requests
 import chromedriver_binary # nopa
 from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
+from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
 from webdriver_manager.chrome import ChromeDriverManager
 import time
 from bs4 import BeautifulSoup
+import pandas as pd
 import sys
 sys.path.append("C:\\Program Files\\Google\\Chrome\\Application")
 exception_type, exception_object, exception_traceback = sys.exc_info()
@@ -24,22 +30,74 @@ url = 'https://kakaku.com/'
 
 try:
     driver.get(url)
+    # 全てのコンテンツが読み込まれるまで待機
+    try:
+        # 全てのコンテンツが読み込まれるまで待機
+        WebDriverWait(driver, 30).until(EC.presence_of_all_elements_located)
+
+    except TimeoutException as e:
+        print(f"timeout: {e}")
+        traceback.print_exc()
 
     search_bar = driver.find_element(By.NAME,'query')
-    search_bar.send_keys("nintendo switch")
-    driver.find_element(By.NAME,'search').click() 
-    dropdown=driver.find_elements(By.CLASS_NAME, 'p-pullDown_list')[0]
-    print(F"dropdown={dropdown}")
-    
-    dropdown.click()
+    search_bar.send_keys("ちえのかりもの")
+    driver.find_element(By.NAME,'search').click()
 
+    try:
+        # 全てのコンテンツが読み込まれるまで待機
+        WebDriverWait(driver, 30).until(EC.presence_of_all_elements_located)
+        
+    except TimeoutException as e:
+        print(f"timeout: {e}")
+        traceback.print_exc()
+    #一番上の”価格表かをもっと見る”をクリック
+    driver.find_element(By.XPATH,'//*[@id="default"]/div[2]/div[2]/div/div[4]/div/div[1]/div/div[2]/div/div/a').click()
+    
+    pricetable=driver.find_elements(By.CLASS_NAME,'p-priceTable')
+    pricetable_money=pricetable.find_elements(By.CLASS_NAME,'p-PTPrice_price')
+    pricetable_shop=pricetable.find_elements(By.CLASS_NAME,'p-PTShopData_name_link')
+
+    print(f"pricetable_money={pricetable_money}")
+    print(f"pricetable_shop={pricetable_shop}")
+
+    df = pd.DataFrame()
+    df['money'] = pricetable_money
+    df['shop'] = pricetable_shop
+
+    df.to_csv('output.csv')
+    #隠されてたリストを表示
+    # tag = driver.find_element(By.CSS_SELECTOR,".p-pullDown_list")
+
+    # driver.execute_script("arguments[0].setAttribute('style','display: block;')", tag)
+    
+
+    #リストから選択
+    # dropdown=driver.find_elements(By.CLASS_NAME, 'p-pullDown_list')
+
+    # dropdown1=driver.find_element(By.XPATH, '//*[@id="default"]/div[2]/div[2]/div/div[3]/div[2]/div/div/ul/li[1]')
+
+    # count = len(dropdown)
+    # print(f"リストの様子数＝{count}")
+
+    
+    # dropdown1.click()
+
+    try:
+        # 全てのコンテンツが読み込まれるまで待機
+        WebDriverWait(driver, 30).until(EC.presence_of_all_elements_located)
+        
+    except TimeoutException as e:
+        print(f"timeout: {e}")
+        traceback.print_exc()
+    
+    #elems = driver.find_elements('th')
 
 #driver.find_elements(By.NAME,'search').click() #btnKが2つあるので、その内の後の方
 #print(driver.current_url)
 except Exception as e:
-                print(f"エラー: {e}")
-                traceback.print_exc()
-    
+    print(f"エラー: {e}")
+    traceback.print_exc()
+
 
 #検索結果の一覧を取得する
 # results = []
