@@ -26,7 +26,7 @@ driver_path = "./chromedriver"
 print('connectiong to remote browser...')
 driver = webdriver.Chrome(options=options)
 
-url = 'https://kakaku.com/'
+url = 'https://search.kakaku.com/nintendo%20switch/'
 
 try:
     driver.get(url)
@@ -38,49 +38,19 @@ try:
     except TimeoutException as e:
         print(f"timeout: {e}")
         traceback.print_exc()
+    
+    max_page=driver.find_element(By.CLASS_NAME,"p-pager_num_disabled")
+    max_page=max_page.find_element(By.XPATH,"./span").text
 
-    search_bar = driver.find_element(By.NAME,'query')
-    search_bar.send_keys("ちえのかりもの")
-    driver.find_element(By.NAME,'search').click()
-
+    print(f"max_page={max_page}")
+    # 全てのコンテンツが読み込まれるまで待機
     try:
         # 全てのコンテンツが読み込まれるまで待機
         WebDriverWait(driver, 30).until(EC.presence_of_all_elements_located)
-        
+
     except TimeoutException as e:
         print(f"timeout: {e}")
         traceback.print_exc()
-    #一番上の”価格表かをもっと見る”をクリック
-    driver.find_element(By.XPATH,'//*[@id="default"]/div[2]/div[2]/div/div[4]/div/div[1]/div/div[2]/div/div/a').click()
-    
-    pricetable=driver.find_elements(By.CLASS_NAME,'p-priceTable')
-    pricetable_money=pricetable.find_elements(By.CLASS_NAME,'p-PTPrice_price')
-    pricetable_shop=pricetable.find_elements(By.CLASS_NAME,'p-PTShopData_name_link')
-
-    print(f"pricetable_money={pricetable_money}")
-    print(f"pricetable_shop={pricetable_shop}")
-
-    df = pd.DataFrame()
-    df['money'] = pricetable_money
-    df['shop'] = pricetable_shop
-
-    df.to_csv('output.csv')
-    #隠されてたリストを表示
-    # tag = driver.find_element(By.CSS_SELECTOR,".p-pullDown_list")
-
-    # driver.execute_script("arguments[0].setAttribute('style','display: block;')", tag)
-    
-
-    #リストから選択
-    # dropdown=driver.find_elements(By.CLASS_NAME, 'p-pullDown_list')
-
-    # dropdown1=driver.find_element(By.XPATH, '//*[@id="default"]/div[2]/div[2]/div/div[3]/div[2]/div/div/ul/li[1]')
-
-    # count = len(dropdown)
-    # print(f"リストの様子数＝{count}")
-
-    
-    # dropdown1.click()
 
     try:
         # 全てのコンテンツが読み込まれるまで待機
